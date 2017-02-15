@@ -77,7 +77,7 @@ And returns results similar to this:
   ]
 }
 ```
-
+ 
 ## Submission
 
 You can submit in one of two ways: email a zip folder or create a GitHub repo.
