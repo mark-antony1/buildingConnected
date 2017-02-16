@@ -1,10 +1,95 @@
 
 (function() {
 	console.log(`***IN ORDER FOR LABORTYPES TO WORK THEY MUST BE SEARCHED LIKE:  'Non-Union,Prevailing Wages'  AND WITHOUT THE QUOTES***`)
+
 	//last held value in search input
 	var oldName = '';
 	//last held value in smaller search input
 	var oldType = '';
+	//keeps track of the id of the last keystroke
+	var keyStrokeId;
+
+	//makes an api call if the either of the search input changed from where they last were
+	//***IN ORDER FOR LABORTYPES TO WORK THEY MUST BE SEARCHED LIKE:  'Non-Union,Prevailing Wages'  AND WITHOUT THE QUOTES***
+	const getData = () => {
+		var name = document.getElementById('search').value
+		var type = parseType(document.getElementById('laborType').value)
+		if((oldName !== name && name !== '') || (oldType !== type && type !== '')) {
+			oldName = name
+			oldType = type
+			// console.log('oldType', oldType)
+			var url;
+			if(name !== '' && type !== '') {
+				url = `http://localhost:3000/api/companies?q=${name}&laborTypes=${type}&limit=200`
+			} else if (name !== '') {
+				url = `http://localhost:3000/api/companies?q=${name}&limit=200`
+			} else {
+				url = `http://localhost:3000/api/companies?laborTypes=${type}&limit=200`
+			}
+			fetch(url)
+			.then(data => data.json())
+			.then(data => renderRows(data))
+			.catch(err => new Error(err))
+		} else if (name === '' && type === '') {
+			oldName = ''
+			var dynamicNode = document.getElementById('dynamic')
+			while (dynamicNode.firstChild) {
+				dynamicNode.removeChild(dynamicNode.firstChild);
+			}
+		}
+	}
+
+	//parse the input for the labor type and returns a valid value for the labortype api value
+	const  parseType = (types) => {
+		if(types.length === 0) {
+			return ''
+		}
+		var nonUnions = ['Non-union', 'non-Union', 'non-union']
+		var spacedTypes = types.split(' ').map(word => {
+			if(nonUnions.indexOf(word) > -1) {
+				return 'Non-Union'
+			} else if (word.length === 0) {
+				return;
+			}
+			word = word.split('')
+			word[0] = word[0].toUpperCase()
+			word = word.join('')
+			return word
+		})
+		if(spacedTypes.length > 1) {
+			var join = spacedTypes.join(',');
+			return join
+		} 
+		return spacedTypes
+	}
+
+	//adds event listener for the name search bar and helps keeps track of last keystroke
+	document.getElementById('search').addEventListener('keydown', function(e) {
+		var currentKeyStroke = Math.random()
+		keyStrokeId = currentKeyStroke;
+		setTimeout(() => {
+			if(currentKeyStroke === keyStrokeId) {
+				getData()
+			}
+		}, 1000)
+  });
+	
+	// adds the same event listener as ^^ but for the labor type
+	document.getElementById('laborType').addEventListener('keydown', function(e) {
+		console.log('labor')
+		var currentKeyStroke = Math.random()
+		keyStrokeId = currentKeyStroke;
+		setTimeout(() => {
+					console.log('labortimeout')
+
+			if(currentKeyStroke === keyStrokeId) {
+				getData()
+			}
+		}, 1000)
+  });
+
+
+
 	//returns a text node with company data as text
 	const createModalLine = (data, label) => {
 		if(label === 'Website') {
@@ -97,6 +182,7 @@
 
 	//returns rows with company names that are returned from the api
 	const renderRows = (data) => {
+		// console.log('data', data)
 		var dynamicNode = document.getElementById('dynamic')
 		while (dynamicNode.firstChild) {
 			dynamicNode.removeChild(dynamicNode.firstChild);
@@ -105,8 +191,8 @@
 		var textnode = document.createTextNode("Results");
 		node.appendChild(textnode);
 		dynamicNode.append(node)
-				
-		// dynamicNode.append(node)
+
+		//append rows to dom that display companyName		
 		var rows = data.results.map((company)  => {
 			node = document.createElement("DIV");
 			textnode = document.createTextNode(company.name);
@@ -124,33 +210,5 @@
 		})
 	}
 
-	//makes an api call if the either of the search input changed from where they last were
-	//***IN ORDER FOR LABORTYPES TO WORK THEY MUST BE SEARCHED LIKE:  'Non-Union,Prevailing Wages'  AND WITHOUT THE QUOTES***
-	setInterval(() => {
-		var name = document.getElementById('search').value
-		var type = document.getElementById('laborType').value
-		if((oldName !== name && name !== '') || (oldType !== type && type !== '')) {
-			oldName = name
-			oldType = type
-			var url;
-			if(name !== '' && type !== '') {
-				url = `http://localhost:3000/api/companies?q=${name}&laborTypes=${type}`
-			} else if (name !== '') {
-				url = `http://localhost:3000/api/companies?q=${name}`
-			} else {
-				url = `http://localhost:3000/api/companies?laborTypes=${type}`
-			}
-
-			fetch(url)
-			.then(data => data.json())
-			.then(data => renderRows(data))
-			.catch(err => new Error(err))
-		} else if (name === '' && type === '') {
-			oldName = ''
-			var dynamicNode = document.getElementById('dynamic')
-			while (dynamicNode.firstChild) {
-				dynamicNode.removeChild(dynamicNode.firstChild);
-			}
-		}
-	}, 1000)
+	
 })()
