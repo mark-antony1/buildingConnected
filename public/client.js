@@ -1,6 +1,5 @@
 
 (function() {
-	console.log(`***IN ORDER FOR LABORTYPES TO WORK THEY MUST BE SEARCHED LIKE:  'Non-Union,Prevailing Wages'  AND WITHOUT THE QUOTES***`)
 
 	//last held value in search input
 	var oldName = '';
@@ -9,21 +8,23 @@
 	//keeps track of the id of the last keystroke
 	var keyStrokeId, fullResults, lastSlicedRow, loadingRows;
 
+	//keeps track of selected laborTypes
 	var types = {
 		Union: false,
 		"Non-Union": false,
 		"Prevailing Wages": false
 	}
+
+	//removes search data
 	const removeRows = () => {
 		var dynamicNode = document.getElementById('dynamic')
 		while (dynamicNode.firstChild) {
 			dynamicNode.removeChild(dynamicNode.firstChild);
 		}
 	}
+
 	//makes an api call if the either of the search input changed from where they last were
-	//***IN ORDER FOR LABORTYPES TO WORK THEY MUST BE SEARCHED LIKE:  'Non-Union,Prevailing Wages'  AND WITHOUT THE QUOTES***
 	const getData = () => {
-		console.log('getting data')
 		var name = document.getElementById('search').value
 		var type = parseType(types)
 		if(((oldName !== name || oldType !== type) && name !== '' || type !== '')) {
@@ -31,13 +32,10 @@
 			oldType = type
 			var url;
 			if(name !== '' && type !== '') {
-				console.log('name and type')
 				url = `http://localhost:3000/api/companies?q=${name}&laborTypes=${type}&limit=200`
 			} else if (name !== '') {
-				console.log('only name')
 				url = `http://localhost:3000/api/companies?q=${name}&limit=200`
 			} else {
-				console.log('just type')
 				url = `http://localhost:3000/api/companies?laborTypes=${type}&limit=200`
 			}
 			fetch(url)
@@ -58,26 +56,6 @@
 
 	//parse the input for the labor type and returns a valid value for the labortype api value
 	const parseType = (types) => {
-		// if(types.length === 0) {
-		// 	return ''
-		// }
-		// var nonUnions = ['Non-union', 'non-Union', 'non-union']
-		// var spacedTypes = types.split(' ').map(word => {
-		// 	if(nonUnions.indexOf(word) > -1) {
-		// 		return 'Non-Union'
-		// 	} else if (word.length === 0) {
-		// 		return;
-		// 	}
-		// 	word = word.split('')
-		// 	word[0] = word[0].toUpperCase()
-		// 	word = word.join('')
-		// 	return word
-		// })
-		// if(spacedTypes.length > 1) {
-		// 	var join = spacedTypes.join(',');
-		// 	return join
-		// } 
-		// return spacedTypes
 		var queryTypes = ''
 		for(var key in types) {
 			if(types[key]) {
@@ -87,48 +65,19 @@
 		return queryTypes
 	}
 
-	//adds event listener for the name search bar and helps keeps track of last keystroke
-	document.getElementById('search').addEventListener('keydown', function(e) {
-		var currentKeyStroke = Math.random()
-		keyStrokeId = currentKeyStroke;
-		setTimeout(() => {
-			if(currentKeyStroke === keyStrokeId) {
-				getData()
-			}
-		}, 1000)
-  });
-	
-	// adds the same event listener as ^^ but for the labor type
-	// document.getElementById('laborType').addEventListener('keydown', function(e) {
-	// 	console.log('labor')
-	// 	var currentKeyStroke = Math.random()
-	// 	keyStrokeId = currentKeyStroke;
-	// 	setTimeout(() => {
-	// 				console.log('labortimeout')
-
-	// 		if(currentKeyStroke === keyStrokeId) {
-	// 			getData()
-	// 		}
-	// 	}, 1000)
-  // });
-
-
-
 	//returns a text node with company data as text
 	const createModalLine = (data, label) => {
 		if(label === 'Website') {
 			var node = document.createElement("DIV");
 			var url = document.createElement("A");
 			var dataNode = document.createTextNode(data);
-			var label = document.createTextNode(`${label}: `);
 			url.href = data
 			url.appendChild(dataNode)
-			node.appendChild(label)
 			node.appendChild(url)
 		} else {
-				node = document.createElement("DIV");
-				dataNode = document.createTextNode(data);
-				node.appendChild(dataNode)
+			node = document.createElement("H2");
+			dataNode = document.createTextNode(data);
+			node.appendChild(dataNode)
 		}
 		node.classList.add('modalChild')
 		return node;
@@ -176,23 +125,23 @@
 
 	//returns the modal with company info
 	const createModal = (companyData) => {
-			var node = document.createElement("DIV");
-			var name = createModalLine(companyData.name, 'Name');
-			var phone = createModalLine(companyData.phone, 'Phone');
-			var website = createModalLine(companyData.website, 'Website');
-			var button = createModalButton(node)
-			var pic = createModalPicture(companyData.avatarUrl)
-			var labors = createLaborTypes(companyData.laborType) //array
-			document.createTextNode(companyData.name);
-			node.appendChild(pic)
-			node.appendChild(name)
-			node.appendChild(phone)
-			node.appendChild(website)   
-			node.appendChild(labors) 
-			node.appendChild(button)
-			node.classList.add('modal')
-			var dynamicNode = document.getElementById('dynamic')
-			dynamicNode.append(node)
+		var node = document.createElement("DIV");
+		var name = createModalLine(companyData.name, 'Name');
+		var phone = createModalLine(companyData.phone, 'Phone');
+		var website = createModalLine(companyData.website, 'Website');
+		var button = createModalButton(node)
+		var pic = createModalPicture(companyData.avatarUrl)
+		var labors = createLaborTypes(companyData.laborType) //array
+		document.createTextNode(companyData.name);
+		node.appendChild(pic)
+		node.appendChild(name)
+		node.appendChild(phone)
+		node.appendChild(website)   
+		node.appendChild(labors) 
+		node.appendChild(button)
+		node.classList.add('modal')
+		var dynamicNode = document.getElementById('dynamic')
+		dynamicNode.append(node)
 	}
 
 	//if modal exists, hide it and create a new one
@@ -203,8 +152,8 @@
 		createModal(companyData)
 	}
 
+	//append rows to dom that display companyName		
 	const appendRows = (data, dynamicNode) => {
-		//append rows to dom that display companyName		
 		var rows = data.map((company)  => {
 			node = document.createElement("DIV");
 			textnode = document.createTextNode(company.name);
@@ -230,12 +179,17 @@
 				dynamicNode.removeChild(dynamicNode.firstChild);
 			}
 			var node = document.createElement("h3");
-			var textnode = document.createTextNode("Results");
-			node.appendChild(textnode);
-			dynamicNode.append(node)
-			appendRows(data, dynamicNode)
+			if(data.length === 0) {
+				var textnode = document.createTextNode("No Results Found");
+				node.appendChild(textnode);
+				dynamicNode.append(node)
+			} else {
+				var textnode = document.createTextNode("Results");
+				node.appendChild(textnode);
+				dynamicNode.append(node)
+				appendRows(data, dynamicNode)
+			}
 		} else {
-			console.log('adding more rows')
 			lastSlicedRow += 10;
 			var node = document.createElement("h3");
 			var textnode = document.createTextNode("Loading...");
@@ -250,10 +204,9 @@
 		}
 	}
 
+	//makes api call once a radio button change is registered
 	const handleRadioClick = (node) => {
-		console.log('before', types[node.id])
 		types[node.id] = !types[node.id]
-		console.log('after', types[node.id])
 		var currentKeyStroke = Math.random()
 		keyStrokeId = currentKeyStroke;
 		setTimeout(() => {
@@ -263,26 +216,36 @@
 		}, 1000)
 	}
 
+	//returns true if bottom of page has been scrolled to
 	const reachedBottom = () => {
-		//current position
 		var currentPosition = window.pageYOffset;
 		var windowSize = window.innerHeight;
 		var documentSize = document.body.offsetHeight;
-		console.log(currentPosition, windowSize, documentSize)
-		return (currentPosition + windowSize) >= documentSize ? true: false;
+		return (currentPosition + windowSize) >= documentSize && lastSlicedRow < fullResults.length ? true: false;
 	}
 
+	//adds scroll event to determine if bottom has been reached
 	document.addEventListener('scroll', function() {
 		if(reachedBottom() && lastSlicedRow !== undefined && !loadingRows){
 			renderRows(fullResults.slice(lastSlicedRow, lastSlicedRow + 10))
 		}
 	})
 
+	//adds click handler to radio buttons
 	var classname = document.getElementsByClassName('radio')
-
 	for (var i = 0; i < classname.length; i++) {
 		var node = document.getElementById(classname[i].id)
-		console.log(node.checked)
 		node.addEventListener('click', handleRadioClick.bind(node, node), false);
 	}
+
+	//adds event listener for the name search bar and helps keeps track of last keystroke
+	document.getElementById('search').addEventListener('keydown', function() {
+		var currentKeyStroke = Math.random()
+		keyStrokeId = currentKeyStroke;
+		setTimeout(() => {
+			if(currentKeyStroke === keyStrokeId) {
+				getData()
+			}
+		}, 1000)
+  });
 })()
