@@ -120,13 +120,11 @@
 			var node = document.createElement("DIV");
 			var url = document.createElement("A");
 			var dataNode = document.createTextNode(data);
-			var label = document.createTextNode(`${label}: `);
 			url.href = data
 			url.appendChild(dataNode)
-			node.appendChild(label)
 			node.appendChild(url)
 		} else {
-				node = document.createElement("DIV");
+				node = document.createElement("H2");
 				dataNode = document.createTextNode(data);
 				node.appendChild(dataNode)
 		}
@@ -269,7 +267,7 @@
 		var windowSize = window.innerHeight;
 		var documentSize = document.body.offsetHeight;
 		console.log(currentPosition, windowSize, documentSize)
-		return (currentPosition + windowSize) >= documentSize ? true: false;
+		return (currentPosition + windowSize) >= documentSize && lastSlicedRow < fullResults.length ? true: false;
 	}
 
 	document.addEventListener('scroll', function() {
