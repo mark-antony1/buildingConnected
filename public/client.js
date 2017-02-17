@@ -1,10 +1,119 @@
 
 (function() {
 	console.log(`***IN ORDER FOR LABORTYPES TO WORK THEY MUST BE SEARCHED LIKE:  'Non-Union,Prevailing Wages'  AND WITHOUT THE QUOTES***`)
+
 	//last held value in search input
 	var oldName = '';
 	//last held value in smaller search input
 	var oldType = '';
+	//keeps track of the id of the last keystroke
+	var keyStrokeId, fullResults, lastSlicedRow, loadingRows;
+
+	var types = {
+		Union: false,
+		"Non-Union": false,
+		"Prevailing Wages": false
+	}
+	const removeRows = () => {
+		var dynamicNode = document.getElementById('dynamic')
+		while (dynamicNode.firstChild) {
+			dynamicNode.removeChild(dynamicNode.firstChild);
+		}
+	}
+	//makes an api call if the either of the search input changed from where they last were
+	//***IN ORDER FOR LABORTYPES TO WORK THEY MUST BE SEARCHED LIKE:  'Non-Union,Prevailing Wages'  AND WITHOUT THE QUOTES***
+	const getData = () => {
+		console.log('getting data')
+		var name = document.getElementById('search').value
+		var type = parseType(types)
+		if(((oldName !== name || oldType !== type) && name !== '' || type !== '')) {
+			oldName = name
+			oldType = type
+			var url;
+			if(name !== '' && type !== '') {
+				console.log('name and type')
+				url = `http://localhost:3000/api/companies?q=${name}&laborTypes=${type}&limit=200`
+			} else if (name !== '') {
+				console.log('only name')
+				url = `http://localhost:3000/api/companies?q=${name}&limit=200`
+			} else {
+				console.log('just type')
+				url = `http://localhost:3000/api/companies?laborTypes=${type}&limit=200`
+			}
+			fetch(url)
+			.then(data => data.json())
+			.then(data => {
+				fullResults = data.results
+				lastSlicedRow = 10;
+				renderRows(data.results.slice(0,10), true)
+			})
+			.catch(err => new Error(err))
+		} else if (name === '' && type === '') {
+			oldType = ''
+			oldName = ''
+			fullResults = '';
+			removeRows()
+		}
+	}
+
+	//parse the input for the labor type and returns a valid value for the labortype api value
+	const parseType = (types) => {
+		// if(types.length === 0) {
+		// 	return ''
+		// }
+		// var nonUnions = ['Non-union', 'non-Union', 'non-union']
+		// var spacedTypes = types.split(' ').map(word => {
+		// 	if(nonUnions.indexOf(word) > -1) {
+		// 		return 'Non-Union'
+		// 	} else if (word.length === 0) {
+		// 		return;
+		// 	}
+		// 	word = word.split('')
+		// 	word[0] = word[0].toUpperCase()
+		// 	word = word.join('')
+		// 	return word
+		// })
+		// if(spacedTypes.length > 1) {
+		// 	var join = spacedTypes.join(',');
+		// 	return join
+		// } 
+		// return spacedTypes
+		var queryTypes = ''
+		for(var key in types) {
+			if(types[key]) {
+				queryTypes += `${key},`
+			}
+		}
+		return queryTypes
+	}
+
+	//adds event listener for the name search bar and helps keeps track of last keystroke
+	document.getElementById('search').addEventListener('keydown', function(e) {
+		var currentKeyStroke = Math.random()
+		keyStrokeId = currentKeyStroke;
+		setTimeout(() => {
+			if(currentKeyStroke === keyStrokeId) {
+				getData()
+			}
+		}, 1000)
+  });
+	
+	// adds the same event listener as ^^ but for the labor type
+	// document.getElementById('laborType').addEventListener('keydown', function(e) {
+	// 	console.log('labor')
+	// 	var currentKeyStroke = Math.random()
+	// 	keyStrokeId = currentKeyStroke;
+	// 	setTimeout(() => {
+	// 				console.log('labortimeout')
+
+	// 		if(currentKeyStroke === keyStrokeId) {
+	// 			getData()
+	// 		}
+	// 	}, 1000)
+  // });
+
+
+
 	//returns a text node with company data as text
 	const createModalLine = (data, label) => {
 		if(label === 'Website') {
@@ -19,8 +128,6 @@
 		} else {
 				node = document.createElement("DIV");
 				dataNode = document.createTextNode(data);
-				label = document.createTextNode(`${label}: `);
-				node.appendChild(label)
 				node.appendChild(dataNode)
 		}
 		node.classList.add('modalChild')
@@ -33,6 +140,7 @@
 		var buttonText = document.createTextNode('Close Modal');
 		node.appendChild(buttonText)
 		node.classList.add('modal_button')
+		node.classList.add('suggestions')
 		node.addEventListener('click',  function() {
 			this.classList.add('hide')
 		}.bind(modal))
@@ -41,10 +149,10 @@
 
 	//creates a company picture for the modal
 	const createModalPicture = (src) => {
-			var node = document.createElement("IMG")
-			node.classList.add('image')
-			node.src = src
-			return node;
+		var node = document.createElement("IMG")
+		node.classList.add('image')
+		node.src = src
+		return node;
 	}
 
 	//creates rows for labor types at companies
@@ -95,19 +203,9 @@
 		createModal(companyData)
 	}
 
-	//returns rows with company names that are returned from the api
-	const renderRows = (data) => {
-		var dynamicNode = document.getElementById('dynamic')
-		while (dynamicNode.firstChild) {
-			dynamicNode.removeChild(dynamicNode.firstChild);
-		}
-		var node = document.createElement("h3");
-		var textnode = document.createTextNode("Results");
-		node.appendChild(textnode);
-		dynamicNode.append(node)
-				
-		// dynamicNode.append(node)
-		var rows = data.results.map((company)  => {
+	const appendRows = (data, dynamicNode) => {
+		//append rows to dom that display companyName		
+		var rows = data.map((company)  => {
 			node = document.createElement("DIV");
 			textnode = document.createTextNode(company.name);
 			node.appendChild(textnode);
@@ -124,33 +222,67 @@
 		})
 	}
 
-	//makes an api call if the either of the search input changed from where they last were
-	//***IN ORDER FOR LABORTYPES TO WORK THEY MUST BE SEARCHED LIKE:  'Non-Union,Prevailing Wages'  AND WITHOUT THE QUOTES***
-	setInterval(() => {
-		var name = document.getElementById('search').value
-		var type = document.getElementById('laborType').value
-		if((oldName !== name && name !== '') || (oldType !== type && type !== '')) {
-			oldName = name
-			oldType = type
-			var url;
-			if(name !== '' && type !== '') {
-				url = `http://localhost:3000/api/companies?q=${name}&laborTypes=${type}`
-			} else if (name !== '') {
-				url = `http://localhost:3000/api/companies?q=${name}`
-			} else {
-				url = `http://localhost:3000/api/companies?laborTypes=${type}`
-			}
-
-			fetch(url)
-			.then(data => data.json())
-			.then(data => renderRows(data))
-			.catch(err => new Error(err))
-		} else if (name === '' && type === '') {
-			oldName = ''
-			var dynamicNode = document.getElementById('dynamic')
+	//returns rows with company names that are returned from the api
+	const renderRows = (data, reset) => {
+		var dynamicNode = document.getElementById('dynamic')
+		if(reset){
 			while (dynamicNode.firstChild) {
 				dynamicNode.removeChild(dynamicNode.firstChild);
 			}
+			var node = document.createElement("h3");
+			var textnode = document.createTextNode("Results");
+			node.appendChild(textnode);
+			dynamicNode.append(node)
+			appendRows(data, dynamicNode)
+		} else {
+			console.log('adding more rows')
+			lastSlicedRow += 10;
+			var node = document.createElement("h3");
+			var textnode = document.createTextNode("Loading...");
+			loadingRows = true;
+			node.appendChild(textnode);
+			dynamicNode.append(node)
+			setTimeout(() => {
+				appendRows(data, dynamicNode)
+				loadingRows = false;
+				node.parentNode.removeChild(node);
+			}, 500)	
 		}
-	}, 1000)
+	}
+
+	const handleRadioClick = (node) => {
+		console.log('before', types[node.id])
+		types[node.id] = !types[node.id]
+		console.log('after', types[node.id])
+		var currentKeyStroke = Math.random()
+		keyStrokeId = currentKeyStroke;
+		setTimeout(() => {
+			if(currentKeyStroke === keyStrokeId) {
+				getData()
+			}
+		}, 1000)
+	}
+
+	const reachedBottom = () => {
+		//current position
+		var currentPosition = window.pageYOffset;
+		var windowSize = window.innerHeight;
+		var documentSize = document.body.offsetHeight;
+		console.log(currentPosition, windowSize, documentSize)
+		return (currentPosition + windowSize) >= documentSize ? true: false;
+	}
+
+	document.addEventListener('scroll', function() {
+		if(reachedBottom() && lastSlicedRow !== undefined && !loadingRows){
+			renderRows(fullResults.slice(lastSlicedRow, lastSlicedRow + 10))
+		}
+	})
+
+	var classname = document.getElementsByClassName('radio')
+
+	for (var i = 0; i < classname.length; i++) {
+		var node = document.getElementById(classname[i].id)
+		console.log(node.checked)
+		node.addEventListener('click', handleRadioClick.bind(node, node), false);
+	}
 })()

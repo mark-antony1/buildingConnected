@@ -1,9 +1,14 @@
 	html {
-		background: #ffc600;
 		font-size: 20px;
 		font-weight: 200;
+		background-color: #EDEEF0;
+		font-family: 'Open Sans', sans-serif;
+
 	}
 	
+	h1 {
+		color: #4DAAA7;
+	}
 	.static {
 		width: 100%;
 		display: flex;
@@ -20,18 +25,21 @@
 		flex-direction: column;
 	}
 
-	
-	input.search {
-		padding: 20px;
-		text-align: center;
-		border: 10px solid #F7F7F7;
-		top: 10px;
-		z-index: 2;
-		border-radius: 5px;
-		font-size: 40px;
-		box-shadow: 0 0 5px rgba(0, 0, 0, 0.12), inset 0 0 2px rgba(0, 0, 0, 0.19);
+	.radioButtons {
+		font-size: 30px;
 	}
 	
+	input.search {
+		width: 100%;
+    border: 2px solid #ccc;
+    border-radius: 4px;
+    font-size: 16px;
+    background-color: white;
+    background-position: 10px 10px; 
+    background-repeat: no-repeat;
+    padding: 12px 20px 12px 40px;
+	}
+
 	.suggestions {
 		cursor: pointer;
 		background: white;
@@ -46,29 +54,40 @@
 		text-transform: capitalize;
 	}
 
+	.modal_button {
+		box-shadow: 0px;
+		border: 0px;
+	}
+
 	.modal {
-		border: 10px solid #F7F7F7;
+		/*border: 10px solid #F7F7F7;*/
 		border-radius: 5px;
 		box-shadow: 0 0 5px rgba(0, 0, 0, 0.12), inset 0 0 2px rgba(0, 0, 0, 0.19);
 		position: fixed;
 		top: 10%;
 		left: 35% - 5px;
 		width: 30%;
-		height: 70%;
-		background-color: white;
+		min-width: 300px;
+		height: 75%;
+		display: flex;
+		background-color: #F7F7F7;
 		justify-content: center;
 		align-items: center;
-		display: flex;
 		flex-direction: column;
 		z-index: 1000;
+
 	}
 
 	.modalChild {
 		margin: 10px 0 10px 0;
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		text-align: center;
 	}
 	
 	.image {
-		width: 200px;
+		width: 175px;
 	}
 
 	.hide {
