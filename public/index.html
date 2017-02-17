@@ -2,16 +2,22 @@
 <html>
 	<body>
 		<div id='static' class='static'>
-			<h1> Search Your Company</h1>
+			<h1>Find Your Dream Contractor</h1>
 			<form>
-				<label>Search By Name</label>
-				<input type='text' class='search' id='search'/>
-				<label> Search by Labor Type</label>
-				<input type='text' class='search smaller ' id='laborType'/>
+				<input type='text' class='search' placeHolder='Bobs Construction' id='search'/>
+				<div class='radioButtons'>
+					<input id="Union" type="checkbox" class='radio' value="option">
+					<label for="option">Union</label>
+					<input id="Non-Union" type="checkbox" class='radio' value="option">
+					<label for="option">Non-Union</label>
+					<input id="Prevailing Wages" type="checkbox" class='radio' value="option">
+					<label for="option">Prevailing Wages</label>
+				</div>
 			</form>
 		</div>
 		<div id='dynamic'></div>
 		<link rel="stylesheet" href="style.css">
+		<link href="https://fonts.googleapis.com/css?family=Open+Sans:300" rel="stylesheet">
 		<script src="client.js">
 		</script>
 </body>
