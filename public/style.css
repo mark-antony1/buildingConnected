@@ -3,12 +3,12 @@
 		font-weight: 200;
 		background-color: #EDEEF0;
 		font-family: 'Open Sans', sans-serif;
-
 	}
 	
 	h1 {
 		color: #4DAAA7;
 	}
+	
 	.static {
 		width: 100%;
 		display: flex;
@@ -122,4 +122,5 @@
 	.radioContainer {
 		display: flex;
 		flex-wrap: wrap;
+		justify-content: space-between;
 	}

@@ -179,10 +179,16 @@
 				dynamicNode.removeChild(dynamicNode.firstChild);
 			}
 			var node = document.createElement("h3");
-			var textnode = document.createTextNode("Results");
-			node.appendChild(textnode);
-			dynamicNode.append(node)
-			appendRows(data, dynamicNode)
+			if(data.length === 0) {
+				var textnode = document.createTextNode("No Results Found");
+				node.appendChild(textnode);
+				dynamicNode.append(node)
+			} else {
+				var textnode = document.createTextNode("Results");
+				node.appendChild(textnode);
+				dynamicNode.append(node)
+				appendRows(data, dynamicNode)
+			}
 		} else {
 			lastSlicedRow += 10;
 			var node = document.createElement("h3");
