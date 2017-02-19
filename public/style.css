@@ -26,7 +26,7 @@
 	}
 
 	.radioLabels {
-		font-size: 30px;
+		font-size: 20px;
 		cursor: pointer;
 	}
 
@@ -35,7 +35,7 @@
 	}
 	
 	input.search {
-		width: 100%;
+		width: 60%;
     border: 2px solid #ccc;
     border-radius: 4px;
     font-size: 16px;
@@ -112,6 +112,7 @@
 		align-items: center;
 		flex-direction: column;
 		font-size: 30px;
+		width: 100%;
 	}
 	
 	.smaller {

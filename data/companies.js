@@ -1894,7 +1894,7 @@ module.exports = [
   ],
   "name": "Safway Services",
   "phone": "(436) 233-3857",
-  "website": "http://ogiap.et/udulod"
+  "website": "http://ogiap.et/udulod" 
 },
 {
   "avatarUrl": "https://bc-prod.imgix.net/avatars/546f7ffa8184b805009fb848/a48ffc11-2a4e-4006-8fb9-286c0ad01c86_0dde314bf4b954e9be9efee9aea6d4ab.jpeg?auto=format&rect=0,0,256,256&fit=fill&bg=fff",
